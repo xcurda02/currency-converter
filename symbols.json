@@ -2,6 +2,7 @@
   {"cc":"AUD","symbol":"$"},
   {"cc":"BGN","symbol":"BGN"},
   {"cc":"BRL","symbol":"R$"},
+  {"cc":"BTC","symbol":"\u20bf"},
   {"cc":"CAD","symbol":"$"},
   {"cc":"CDF","symbol":"F"},
   {"cc":"CHF","symbol":"Fr."},

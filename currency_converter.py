@@ -2,6 +2,7 @@
 
 from flask import Flask, request, Response
 from forex_python.converter import CurrencyRates, RatesNotAvailableError
+from forex_python.bitcoin import BtcConverter
 from requests.exceptions import ConnectionError
 import sys
 import argparse
@@ -116,6 +117,7 @@ def convert(amount, input_currency, output_currency):
         currency_data = get_currency_data()
 
     c = CurrencyRates()
+    b = BtcConverter()
     output_currencies = dict()  # Dictionary to store converted amounts for each currency
 
     # Converting currency
@@ -125,12 +127,21 @@ def convert(amount, input_currency, output_currency):
                 continue
             else:
                 raise SameCurrencyError
+
         try:
-            output_currencies[item['cc']] = round(c.convert(input_currency_code, item['cc'], amount), 2)
+            if input_currency_code == "BTC":    # Bitcoin is input currency
+                output_currencies[item['cc']] = round(b.convert_btc_to_cur(amount, item['cc']), 2)
+
+            elif item['cc'] == "BTC":           # Bitcoin is output currency
+                output_currencies[item['cc']] = round(b.convert_to_btc(amount, input_currency_code), 5)
+
+            else:                               # Other currencies than bitcoin
+                output_currencies[item['cc']] = round(c.convert(input_currency_code, item['cc'], amount), 2)
+
         except RatesNotAvailableError:
-            if output_currency is None:    # Output currency not entered, currencies without available rates are skipped
+            if output_currency is None:  # Output currency not entered, currencies without available rates are skipped
                 pass
-            else:                          # Output currency entered => not available currency rate yields error
+            else:  # Output currency entered => not available currency rate yields error
                 raise RatesNotAvailableError
 
     output_data = dict()
